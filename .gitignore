@@ -31,7 +31,3 @@ build/
 # Logs and data
 *.log
 *.sqlite3
-
-# Specific to this project
-# Results of analysis
-analysis/results/
