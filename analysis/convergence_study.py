@@ -140,6 +140,32 @@ def generate_comparison_plots_3d(N, f_func, g_func, u_exact_func, case_title, fi
     print(f"  Visualisation 3D pour N={N} enregistrée sous {plot_filename}")
 
 
+def plot_comparison_2d_slice(N, u_numerical, u_exact, x_grid, y_grid, case_title, filename_prefix, output_dir):
+    """
+    Trace la solution numérique et analytique sur une coupe 2D à y = 0.5 (ou la plus proche).
+    """
+    idx_y = np.argmin(np.abs(y_grid - 0.5))  # Trouver l'indice de y ≈ 0.5
+    x_vals = x_grid
+    u_numerical_line = u_numerical[idx_y, :]
+    u_exact_line = u_exact[idx_y, :]
+
+    plt.figure(figsize=(8, 5))
+    plt.plot(x_vals, u_numerical_line, 'o-', label='Solution numérique', color='blue')
+    plt.plot(x_vals, u_exact_line, '-', label='Solution analytique', color='green')
+    plt.fill_between(x_vals, u_numerical_line, u_exact_line, color='red', alpha=0.2, label='Erreur')
+    plt.title(f'Comparaison sur une coupe à y = 0.5\n{case_title} (N={N})')
+    plt.xlabel('x')
+    plt.ylabel('u(x, 0.5)')
+    plt.legend()
+    plt.grid(True)
+
+    plot_filename = os.path.join(output_dir, f'{filename_prefix}_N{N}_2D_slice_comparison.png')
+    plt.savefig(plot_filename)
+    plt.close()
+    print(f"  Graphique 2D de comparaison (coupe y=0.5) enregistré sous {plot_filename}")
+
+
+
 # --- Main convergence study block ---
 if __name__ == "__main__":
     print("Démarrage de l'étude de convergence pour l'équation de Poisson 2D...")
@@ -223,6 +249,10 @@ if __name__ == "__main__":
             print(f"  Génération des images de comparaison 3D pour N={N}...")
             generate_comparison_plots_3d(N, case["f_func"], case["g_func"], case["u_exact_func"], 
                                          case["name"], case["file_prefix"], output_dir)
+            # Comparaison 2D sur une coupe horizontale y = 0.5
+            plot_comparison_2d_slice(N, U_full_grid, U_exact_full_grid, x_grid, y_grid,
+                         case["name"], case["file_prefix"], output_dir)
+
         
         # Calculer l'ordre moyen de convergence pour le cas actuel
         valid_orders = [o for o in orders_of_conv if o is not None and not np.isnan(o)]
